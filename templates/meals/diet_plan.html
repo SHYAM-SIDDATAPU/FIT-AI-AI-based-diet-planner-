@@ -1,0 +1,149 @@
+{% extends "layout_app.html" %}
+{% block title %}Diet Plan — FitAI{% endblock %}
+{% block page_title %}Diet Plan{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div class="section-title"><i class="fas fa-utensils"></i> Personalised Diet Plan</div>
+  <form method="POST" action="{{ url_for('diet_plan') }}">
+    <input type="hidden" name="goal" value="{{ current_user.goal or 'maintain' }}">
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-wand-magic-sparkles"></i> Regenerate Plan
+    </button>
+  </form>
+</div>
+
+<!-- Goal selector -->
+<div class="card fade-up mb-4" style="margin-bottom:20px;">
+  <div class="card-title"><i class="fas fa-sliders"></i> Choose Plan Type</div>
+  <form method="POST" action="{{ url_for('diet_plan') }}" style="display:flex;gap:10px;flex-wrap:wrap;">
+    {% for g, label in [('weight_loss','⚖️ Weight Loss'),('weight_gain','📈 Weight Gain'),('muscle_gain','💪 Muscle Gain'),('maintain','🎯 Maintain')] %}
+    <button type="submit" name="goal" value="{{ g }}"
+      class="btn {% if (meal_plan and meal_plan.goal == g) or (not meal_plan and current_user.goal == g) %}btn-primary{% else %}btn-light{% endif %}">
+      {{ label }}
+    </button>
+    {% endfor %}
+  </form>
+</div>
+
+{% if meal_plan %}
+<!-- Calorie summary -->
+<div class="stats-grid fade-up" style="margin-bottom:20px;">
+  <div class="stat-card blue">
+    <div class="stat-icon blue"><i class="fas fa-fire"></i></div>
+    <div class="stat-label">Plan Calories</div>
+    <div class="stat-value">{{ meal_plan.calories }}</div>
+    <div class="stat-sub">kcal per day</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-icon green"><i class="fas fa-bullseye"></i></div>
+    <div class="stat-label">Your Target</div>
+    <div class="stat-value">{{ current_user.daily_calories or '—' }}</div>
+    <div class="stat-sub">kcal per day</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="fas fa-tag"></i></div>
+    <div class="stat-label">Plan Goal</div>
+    <div class="stat-value" style="font-size:.95rem;">{{ meal_plan.goal.replace('_',' ').title() if meal_plan.goal else '—' }}</div>
+    <div class="stat-sub">Current plan type</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+    <div class="stat-label">Generated</div>
+    <div class="stat-value" style="font-size:.88rem;">{{ meal_plan.created_at.strftime('%d %b') }}</div>
+    <div class="stat-sub">{{ meal_plan.created_at.strftime('%H:%M') }}</div>
+  </div>
+</div>
+
+<!-- Meal cards -->
+<div class="meal-plan-grid fade-up">
+  <!-- Breakfast -->
+  <div class="meal-plan-card">
+    <div class="meal-plan-header breakfast">
+      <div class="meal-plan-header-icon">🌅</div>
+      <div>
+        <h4>Breakfast</h4>
+        <div style="font-size:.75rem;opacity:.7;">Morning fuel</div>
+      </div>
+    </div>
+    <div class="meal-plan-body">
+      <p>{{ meal_plan.breakfast }}</p>
+    </div>
+  </div>
+
+  <!-- Lunch -->
+  <div class="meal-plan-card">
+    <div class="meal-plan-header lunch">
+      <div class="meal-plan-header-icon">☀️</div>
+      <div>
+        <h4>Lunch</h4>
+        <div style="font-size:.75rem;opacity:.7;">Midday meal</div>
+      </div>
+    </div>
+    <div class="meal-plan-body">
+      <p>{{ meal_plan.lunch }}</p>
+    </div>
+  </div>
+
+  <!-- Dinner -->
+  <div class="meal-plan-card">
+    <div class="meal-plan-header dinner">
+      <div class="meal-plan-header-icon">🌙</div>
+      <div>
+        <h4>Dinner</h4>
+        <div style="font-size:.75rem;opacity:.7;">Evening meal</div>
+      </div>
+    </div>
+    <div class="meal-plan-body">
+      <p>{{ meal_plan.dinner }}</p>
+    </div>
+  </div>
+
+  <!-- Snacks -->
+  <div class="meal-plan-card">
+    <div class="meal-plan-header snacks">
+      <div class="meal-plan-header-icon">🍎</div>
+      <div>
+        <h4>Snacks</h4>
+        <div style="font-size:.75rem;opacity:.7;">Between meals</div>
+      </div>
+    </div>
+    <div class="meal-plan-body">
+      <p>{{ meal_plan.snacks }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Nutrition tips -->
+<div class="card fade-up" style="margin-top:20px;">
+  <div class="card-title"><i class="fas fa-lightbulb"></i> Nutrition Tips</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    {% set tips = [
+      ('fa-droplet','Drink at least 2–3 litres of water per day.'),
+      ('fa-clock','Eat at regular intervals every 3–4 hours.'),
+      ('fa-ban','Avoid processed foods, sugary drinks, and excess sodium.'),
+      ('fa-leaf','Include at least 5 servings of fruits &amp; vegetables daily.'),
+    ] %}
+    {% for icon, tip in tips %}
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:var(--light);border-radius:10px;">
+      <i class="fas {{ icon }}" style="color:var(--secondary);margin-top:2px;"></i>
+      <span style="font-size:.85rem;color:var(--gray);">{{ tip }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% else %}
+<div class="card fade-up" style="text-align:center;padding:60px 24px;">
+  <i class="fas fa-utensils" style="font-size:3rem;color:var(--gray);opacity:.3;margin-bottom:16px;display:block;"></i>
+  <h3 style="color:var(--dark);margin-bottom:8px;">No Diet Plan Yet</h3>
+  <p style="color:var(--gray);margin-bottom:24px;">Click a button above to generate your personalised meal plan.</p>
+  <form method="POST" action="{{ url_for('diet_plan') }}">
+    <input type="hidden" name="goal" value="{{ current_user.goal or 'maintain' }}">
+    <button type="submit" class="btn btn-primary btn-lg">
+      <i class="fas fa-wand-magic-sparkles"></i> Generate My Diet Plan
+    </button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

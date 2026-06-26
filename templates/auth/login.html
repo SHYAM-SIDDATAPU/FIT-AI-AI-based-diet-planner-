@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Login — FitAI{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="auth-wrapper">
+  <!-- Left panel -->
+  <div class="auth-left">
+    <div class="auth-brand">
+      <div class="auth-brand-icon"><i class="fas fa-leaf"></i></div>
+      <h1>FitAI</h1>
+      <p>Your AI-powered personal diet &amp; fitness coach. Reach your goals smarter.</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feature-item">
+        <div class="auth-feature-icon"><i class="fas fa-brain"></i></div>
+        <div class="auth-feature-text">
+          <h4>AI Recommendations</h4>
+          <p>Smart plans tailored to your body</p>
+        </div>
+      </div>
+      <div class="auth-feature-item">
+        <div class="auth-feature-icon"><i class="fas fa-utensils"></i></div>
+        <div class="auth-feature-text">
+          <h4>Personalized Diet Plans</h4>
+          <p>Meals aligned with your goal</p>
+        </div>
+      </div>
+      <div class="auth-feature-item">
+        <div class="auth-feature-icon"><i class="fas fa-dumbbell"></i></div>
+        <div class="auth-feature-text">
+          <h4>Custom Workout Plans</h4>
+          <p>Exercises matched to your fitness level</p>
+        </div>
+      </div>
+      <div class="auth-feature-item">
+        <div class="auth-feature-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="auth-feature-text">
+          <h4>Progress Analytics</h4>
+          <p>Track your journey with live charts</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="auth-right">
+    <div class="auth-form-container">
+      <div class="auth-header">
+        <h2>Welcome Back 👋</h2>
+        <p>Sign in to your FitAI account</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }}"><i class="fas fa-circle-info"></i> {{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form id="loginForm" method="POST" action="{{ url_for('login') }}" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-control"
+                 placeholder="you@example.com"
+                 value="{{ email if email else '' }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" name="password" class="form-control"
+                 placeholder="••••••••" required>
+        </div>
+        <div class="flex items-center justify-between mb-3">
+          <label class="flex items-center gap-1" style="font-size:.85rem;cursor:pointer;">
+            <input type="checkbox" name="remember"> Remember me
+          </label>
+          <a href="#" style="font-size:.82rem;color:var(--primary);font-weight:600;">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full btn-lg">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer-link">
+        Don't have an account? <a href="{{ url_for('register') }}">Create one free</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

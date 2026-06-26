@@ -1,0 +1,129 @@
+{% extends "layout_app.html" %}
+{% block title %}Workout Plan — FitAI{% endblock %}
+{% block page_title %}Workout Plan{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div class="section-title"><i class="fas fa-dumbbell"></i> Personalised Workout Plan</div>
+</div>
+
+<!-- Goal selector -->
+<div class="card fade-up" style="margin-bottom:20px;">
+  <div class="card-title"><i class="fas fa-sliders"></i> Choose Workout Type</div>
+  <form method="POST" action="{{ url_for('workout_plan') }}" style="display:flex;gap:10px;flex-wrap:wrap;">
+    {% set plan_goal = workouts[0].goal if workouts else current_user.goal %}
+    {% for g, label in [('weight_loss','🏃 Weight Loss'),('weight_gain','🏋️ Weight Gain'),('muscle_gain','💪 Muscle Gain'),('maintain','🧘 Maintain')] %}
+    <button type="submit" name="goal" value="{{ g }}"
+      class="btn {% if plan_goal == g %}btn-primary{% else %}btn-light{% endif %}">
+      {{ label }}
+    </button>
+    {% endfor %}
+  </form>
+</div>
+
+{% if workouts %}
+<!-- Stats -->
+<div class="stats-grid fade-up" style="margin-bottom:20px;">
+  <div class="stat-card blue">
+    <div class="stat-icon blue"><i class="fas fa-list"></i></div>
+    <div class="stat-label">Exercises</div>
+    <div class="stat-value">{{ workouts|length }}</div>
+    <div class="stat-sub">In this plan</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-icon green"><i class="fas fa-clock"></i></div>
+    <div class="stat-label">Est. Duration</div>
+    <div class="stat-value">
+      {{ workouts | selectattr('duration') | map(attribute='duration') | sum }}
+      <span style="font-size:.7em;font-weight:500;color:var(--gray)">min</span>
+    </div>
+    <div class="stat-sub">Timed exercises</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-icon purple"><i class="fas fa-bullseye"></i></div>
+    <div class="stat-label">Goal</div>
+    <div class="stat-value" style="font-size:.95rem;">{{ (workouts[0].goal or 'N/A').replace('_',' ').title() }}</div>
+    <div class="stat-sub">Current plan</div>
+  </div>
+  <div class="stat-card orange">
+    <div class="stat-icon orange"><i class="fas fa-fire"></i></div>
+    <div class="stat-label">Intensity</div>
+    <div class="stat-value" style="font-size:.9rem;">
+      {% if workouts[0].goal in ('muscle_gain','weight_gain') %}High
+      {% elif workouts[0].goal == 'weight_loss' %}Moderate
+      {% else %}Light{% endif %}
+    </div>
+    <div class="stat-sub">Training level</div>
+  </div>
+</div>
+
+<!-- Exercise list -->
+<div class="workout-card fade-up">
+  <div style="padding:16px 20px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-weight:700;font-size:.95rem;color:var(--dark);">
+      <i class="fas fa-list-check" style="color:var(--primary);"></i>
+      Exercise List
+    </div>
+    <span class="badge badge-primary">{{ workouts|length }} exercises</span>
+  </div>
+
+  {% set icons = ['fa-person-running','fa-dumbbell','fa-person-biking','fa-fire','fa-person-swimming','fa-fist-raised','fa-circle-dot'] %}
+  {% for w in workouts %}
+  <div class="workout-exercise-item">
+    <div class="ex-icon">
+      <i class="fas {{ icons[loop.index0 % icons|length] }}"></i>
+    </div>
+    <div class="ex-info">
+      <div class="ex-name">{{ w.exercise }}</div>
+      <div class="ex-meta">
+        {% if w.sets %}
+        <span><i class="fas fa-layer-group"></i> {{ w.sets }} sets</span>
+        {% endif %}
+        {% if w.reps %}
+        <span><i class="fas fa-rotate"></i> {{ w.reps }} reps</span>
+        {% endif %}
+        {% if w.duration %}
+        <span><i class="fas fa-clock"></i> {{ w.duration }} min</span>
+        {% endif %}
+      </div>
+    </div>
+    <span class="badge badge-{% if loop.index0 < 2 %}primary{% elif loop.index0 < 4 %}secondary{% else %}purple{% endif %}">
+      {{ 'Cardio' if w.duration and not w.reps else 'Strength' }}
+    </span>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Tips -->
+<div class="card fade-up" style="margin-top:20px;">
+  <div class="card-title"><i class="fas fa-lightbulb"></i> Workout Tips</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    {% set tips = [
+      ('fa-fire','Always warm up for 5–10 minutes before starting.'),
+      ('fa-droplet','Stay hydrated — drink water between sets.'),
+      ('fa-moon','Rest 48 hours before training the same muscle group.'),
+      ('fa-bed','Sleep 7–9 hours for optimal muscle recovery.'),
+    ] %}
+    {% for icon, tip in tips %}
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;background:var(--light);border-radius:10px;">
+      <i class="fas {{ icon }}" style="color:var(--primary);margin-top:2px;"></i>
+      <span style="font-size:.85rem;color:var(--gray);">{{ tip }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% else %}
+<div class="card fade-up" style="text-align:center;padding:60px 24px;">
+  <i class="fas fa-dumbbell" style="font-size:3rem;color:var(--gray);opacity:.3;margin-bottom:16px;display:block;"></i>
+  <h3 style="color:var(--dark);margin-bottom:8px;">No Workout Plan Yet</h3>
+  <p style="color:var(--gray);margin-bottom:24px;">Click a button above to generate your workout plan.</p>
+  <form method="POST" action="{{ url_for('workout_plan') }}">
+    <input type="hidden" name="goal" value="{{ current_user.goal or 'maintain' }}">
+    <button type="submit" class="btn btn-primary btn-lg">
+      <i class="fas fa-wand-magic-sparkles"></i> Generate My Workout Plan
+    </button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="app-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><i class="fas fa-leaf"></i></div>
+      FitAI
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="{{ url_for('dashboard') }}"
+         class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <i class="fas fa-home"></i> Dashboard
+      </a>
+      <a href="{{ url_for('profile') }}"
+         class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+        <i class="fas fa-user"></i> Profile
+      </a>
+
+      <div class="nav-section-label">Plans</div>
+      <a href="{{ url_for('diet_plan') }}"
+         class="nav-item {% if request.endpoint == 'diet_plan' %}active{% endif %}">
+        <i class="fas fa-utensils"></i> Diet Plan
+      </a>
+      <a href="{{ url_for('workout_plan') }}"
+         class="nav-item {% if request.endpoint == 'workout_plan' %}active{% endif %}">
+        <i class="fas fa-dumbbell"></i> Workout Plan
+      </a>
+
+      <div class="nav-section-label">Tracking</div>
+      <a href="{{ url_for('progress') }}"
+         class="nav-item {% if request.endpoint == 'progress' %}active{% endif %}">
+        <i class="fas fa-chart-line"></i> Progress
+      </a>
+
+      {% if current_user.is_admin %}
+      <div class="nav-section-label">Admin</div>
+      <a href="{{ url_for('admin_dashboard') }}"
+         class="nav-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+        <i class="fas fa-shield-halved"></i> Admin Panel
+      </a>
+      {% endif %}
+
+      <div class="nav-section-label">Account</div>
+      <a href="{{ url_for('logout') }}" class="nav-item">
+        <i class="fas fa-right-from-bracket"></i> Logout
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">{{ current_user.name[0].upper() }}</div>
+        <div class="sidebar-user-info">
+          <div class="user-name">{{ current_user.name }}</div>
+          <div class="user-email">{{ current_user.email }}</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ── Main ─────────────────────────────────────── -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <span class="page-title">{% block page_title %}Dashboard{% endblock %}</span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" title="Notifications"><i class="fas fa-bell"></i></button>
+        <a href="{{ url_for('profile') }}" class="topbar-btn" title="Profile"><i class="fas fa-gear"></i></a>
+        <div class="topbar-avatar">{{ current_user.name[0].upper() }}</div>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }}">
+            <i class="fas fa-circle-info"></i> {{ msg }}
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% block extra_js %}{% endblock %}
+{% endblock %}
