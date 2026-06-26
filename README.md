@@ -55,7 +55,7 @@ AI-Diet-Planner/
 └── README.md
 ⚙️ Setup Instructions (Run Locally)
 1. Clone the repository
-git clone https://github.com/your-username/ai-diet-planner.git
+git clone[ https://github.com/your-username/ai-diet-planner.git](https://github.com/SHYAM-SIDDATAPU/FIT-AI-AI-based-diet-planner-.git)
 cd ai-diet-planner
 2. Create virtual environment
 python -m venv venv
